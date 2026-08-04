@@ -4,8 +4,9 @@ Protocol-agnostic TypeScript SDK for DeFi lending risk — exact health factors 
 interest accrual, oracle sanity checks, transaction simulation with decoded reverts, and
 deleverage bundle building. Built on [viem](https://viem.sh).
 
-> **Status: v0 — under active development.** Public API is unstable until `0.1.0`.
-> Roadmap below reflects what is implemented vs. planned.
+> **Status: public preview.** The API is still evolving before the `0.1.0` stable release.
+> The current implementation is usable for Morpho Blue integrations and risk-tooling
+> experiments; follow the changelog before upgrading.
 
 ## Why
 
@@ -28,27 +29,50 @@ and never makes decisions** — that stays in your application.
 
 ## Install
 
-Not yet published. Once `0.1.0` lands:
+The npm package will be published with the `0.1.0` stable release. To run the current
+examples from source:
 
 ```bash
-pnpm add defi-risk-kit viem
+git clone https://github.com/thunderxu7-sketch/defi-risk-kit.git
+cd defi-risk-kit
+pnpm install
+pnpm exec tsx examples/read-health.ts
 ```
 
-## Planned usage (target API)
+After the package is published:
 
 ```ts
-import { createRiskKit } from 'defi-risk-kit'
-import { morphoBlue } from 'defi-risk-kit/adapters'
+import { createPublicClient, http } from 'viem'
+import { computeHealth, morphoBlue } from 'defi-risk-kit'
+import type { MarketRef } from 'defi-risk-kit'
 
-const kit = createRiskKit({ client, adapters: [morphoBlue({ deployments })] })
+const client = createPublicClient({ transport: http('https://mainnet.base.org') })
+const adapter = morphoBlue()
+const market: MarketRef = {
+  chainId: 8453,
+  protocol: 'morpho-blue',
+  marketId: '0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836',
+}
 
-const position = await kit.position(user, marketRef)
-const health = kit.health(position, { at: Math.floor(Date.now() / 1000) }) // exact, accrued
-const oracle = await kit.oracle.check(marketRef)
+const state = await adapter.getMarket(client, market)
+const report = computeHealth(
+  adapter,
+  {
+    user: '0x0000000000000000000000000000000000000001',
+    market,
+    collateral: 10n ** BigInt(state.collateralDecimals),
+    borrowShares: state.totalBorrowShares / 1_000_000n,
+    supplyShares: 0n,
+  },
+  state,
+  { at: Math.floor(Date.now() / 1000) },
+)
 
-const bundle = kit.bundle.deleverage(position, { closeBps: 5000, slippageBps: 50, quoter })
-const sim = await kit.simulate(bundle, { account: user }) // decoded revert on failure
+console.log(report.healthFactor, report.liquidationPrice, report.bufferBps)
 ```
+
+More complete examples are available in [`examples/`](examples/): health reports,
+oracle checks, and deleverage calldata planning.
 
 ## Design principles
 
