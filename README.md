@@ -29,17 +29,16 @@ and never makes decisions** — that stays in your application.
 
 ## Install
 
-The npm package will be published with the `0.1.0` stable release. To run the current
-examples from source:
+The public preview package is available as `0.0.1`. To run the health example against a real
+Base Morpho position:
 
 ```bash
-git clone https://github.com/thunderxu7-sketch/defi-risk-kit.git
-cd defi-risk-kit
-pnpm install
-pnpm exec tsx examples/read-health.ts
+pnpm add defi-risk-kit viem
+USER_ADDRESS=0x... pnpm exec tsx examples/read-health.ts
 ```
 
-After the package is published:
+The example reads the market and position on-chain, then computes an accrued health report
+without signing or broadcasting a transaction:
 
 ```ts
 import { createPublicClient, http } from 'viem'
@@ -55,18 +54,9 @@ const market: MarketRef = {
 }
 
 const state = await adapter.getMarket(client, market)
-const report = computeHealth(
-  adapter,
-  {
-    user: '0x0000000000000000000000000000000000000001',
-    market,
-    collateral: 10n ** BigInt(state.collateralDecimals),
-    borrowShares: state.totalBorrowShares / 1_000_000n,
-    supplyShares: 0n,
-  },
-  state,
-  { at: Math.floor(Date.now() / 1000) },
-)
+const user = '0x0000000000000000000000000000000000000001'
+const position = await adapter.getPosition(client, user, market)
+const report = computeHealth(adapter, position, state, { at: Math.floor(Date.now() / 1000) })
 
 console.log(report.healthFactor, report.liquidationPrice, report.bufferBps)
 ```
