@@ -1,6 +1,6 @@
 {
   "name": "defi-risk-kit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Protocol-agnostic TypeScript SDK for DeFi lending risk: exact health factors with off-chain interest accrual, oracle sanity checks, transaction simulation with decoded reverts, and deleverage bundle building.",
   "license": "MIT",
   "author": "thunderxu7",

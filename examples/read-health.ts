@@ -6,7 +6,8 @@ import { createPublicClient, getAddress, http } from 'viem'
 import { computeHealth, morphoBlue } from '../src/index'
 import type { MarketRef } from '../src/index'
 
-const client = createPublicClient({ transport: http('https://mainnet.base.org') })
+const rpcUrl = process.env.RPC_URL ?? 'https://mainnet.base.org'
+const client = createPublicClient({ transport: http(rpcUrl) })
 const adapter = morphoBlue()
 const rawUser = process.env.USER_ADDRESS
 if (!rawUser) {

@@ -29,40 +29,57 @@ and never makes decisions** — that stays in your application.
 
 ## Install
 
-The public preview package is available as `0.0.1`. To run the health example against a real
-Base Morpho position:
+The public preview package is available as `0.0.2`. This is a complete quickstart from a
+clean directory:
 
 ```bash
+mkdir defi-risk-demo
+cd defi-risk-demo
+npm init -y
 pnpm add defi-risk-kit viem
-USER_ADDRESS=0x... pnpm exec tsx examples/read-health.ts
-```
-
-The example reads the market and position on-chain, then computes an accrued health report
-without signing or broadcasting a transaction:
-
-```ts
-import { createPublicClient, http } from 'viem'
+cat > quickstart.mjs <<'EOF'
+import { createPublicClient, getAddress, http } from 'viem'
 import { computeHealth, morphoBlue } from 'defi-risk-kit'
-import type { MarketRef } from 'defi-risk-kit'
 
-const client = createPublicClient({ transport: http('https://mainnet.base.org') })
+const rawUser = process.env.USER_ADDRESS
+if (!rawUser) throw new Error('USER_ADDRESS is required, e.g. USER_ADDRESS=0x...')
+
+const rpcUrl = process.env.RPC_URL ?? 'https://mainnet.base.org'
+const client = createPublicClient({ transport: http(rpcUrl) })
 const adapter = morphoBlue()
-const market: MarketRef = {
+const market = {
   chainId: 8453,
   protocol: 'morpho-blue',
   marketId: '0x9103c3b4e834476c9a62ea009ba2c884ee42e94e6e314a26f04d312434191836',
 }
 
 const state = await adapter.getMarket(client, market)
-const user = '0x0000000000000000000000000000000000000001'
-const position = await adapter.getPosition(client, user, market)
+const position = await adapter.getPosition(client, getAddress(rawUser), market)
 const report = computeHealth(adapter, position, state, { at: Math.floor(Date.now() / 1000) })
 
-console.log(report.healthFactor, report.liquidationPrice, report.bufferBps)
+console.log('user     ', position.user)
+console.log('market   ', state.collateralToken, '→', state.loanToken)
+console.log('HF       ', report.healthFactor)
+console.log('debt     ', report.debtAssets)
+console.log('liq price', report.liquidationPrice)
+console.log('buffer   ', report.bufferBps, 'bps')
+EOF
+RPC_URL=https://base-rpc.publicnode.com USER_ADDRESS=0x... node quickstart.mjs
 ```
 
-More complete examples are available in [`examples/`](examples/): health reports,
-oracle checks, and deleverage calldata planning.
+The quickstart reads the market and position on-chain, then computes an accrued health report
+without signing or broadcasting a transaction. For the TypeScript source examples, clone the
+repository and run:
+
+```bash
+git clone https://github.com/thunderxu7-sketch/defi-risk-kit.git
+cd defi-risk-kit
+pnpm install
+RPC_URL=https://base-rpc.publicnode.com USER_ADDRESS=0x... pnpm exec tsx examples/read-health.ts
+```
+
+More complete source examples are available in [`examples/`](examples/): oracle checks and
+deleverage calldata planning.
 
 ## Design principles
 
