@@ -1,0 +1,103 @@
+{
+  "name": "defi-risk-kit",
+  "version": "0.0.1",
+  "description": "Protocol-agnostic TypeScript SDK for DeFi lending risk: exact health factors with off-chain interest accrual, oracle sanity checks, transaction simulation with decoded reverts, and deleverage bundle building.",
+  "license": "MIT",
+  "author": "thunderxu7",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thunderxu7-sketch/defi-risk-kit.git"
+  },
+  "homepage": "https://github.com/thunderxu7-sketch/defi-risk-kit#readme",
+  "bugs": "https://github.com/thunderxu7-sketch/defi-risk-kit/issues",
+  "keywords": [
+    "defi",
+    "lending",
+    "risk",
+    "health-factor",
+    "liquidation",
+    "morpho",
+    "viem",
+    "ethereum"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js",
+      "require": "./dist/core/index.cjs"
+    },
+    "./adapters": {
+      "types": "./dist/adapters/index.d.ts",
+      "import": "./dist/adapters/index.js",
+      "require": "./dist/adapters/index.cjs"
+    },
+    "./health": {
+      "types": "./dist/health/index.d.ts",
+      "import": "./dist/health/index.js",
+      "require": "./dist/health/index.cjs"
+    },
+    "./oracle": {
+      "types": "./dist/oracle/index.d.ts",
+      "import": "./dist/oracle/index.js",
+      "require": "./dist/oracle/index.cjs"
+    },
+    "./simulate": {
+      "types": "./dist/simulate/index.d.ts",
+      "import": "./dist/simulate/index.js",
+      "require": "./dist/simulate/index.cjs"
+    },
+    "./bundle": {
+      "types": "./dist/bundle/index.d.ts",
+      "import": "./dist/bundle/index.js",
+      "require": "./dist/bundle/index.cjs"
+    },
+    "./watch": {
+      "types": "./dist/watch/index.d.ts",
+      "import": "./dist/watch/index.js",
+      "require": "./dist/watch/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:fork": "FORK_TESTS=1 vitest run test/fork --no-file-parallelism"
+  },
+  "peerDependencies": {
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^26.1.1",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "viem": "^2.21.0",
+    "vitest": "^2.1.8"
+  }
+}
